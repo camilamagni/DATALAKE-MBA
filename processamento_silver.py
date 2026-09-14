@@ -117,6 +117,14 @@ def processar():
     buffer = StringIO()
     silver_df.to_parquet("fato_vendas.parquet", engine="pyarrow", compression="snappy", index=False)
 
+    # Mostrar primeiras linhas no terminal
+    print("\nPré-visualização da Camada Silver:")
+    print(silver_df.head())
+    print(silver_df.columns)
+    print(len(pedidos_validos))
+    print(len(rejeitados))
+    print(len(silver_df))
+
     # Upload para S3
     with open("fato_vendas.parquet", "rb") as data:
         s3.put_object(Bucket=BUCKET_NAME, Key=silver_key, Body=data)
