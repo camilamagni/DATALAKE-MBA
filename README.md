@@ -35,11 +35,11 @@ s3://<seu-bucket>/raw/clientes/ingest_date=YYYY-MM-DD/clientes.csv
 
 6. **Data Quality, Quarentena e Processamento (Silver Layer)**
      * Executar script **“processamento_silver.py”** --- python processamento_silver.py [Nome do Bucket]
-     * O que faz: Aplica regras de qualidade, rejeitando pedidos inválidos (pedido_id fora do intevalo válido de 9001 a 10000, quantidades negativas); 
-Grava rejeitados em quarantine/ (JSON);
-Enriquecer pedidos válidos com dados de clientes e produtos;
-Calcula valor_total;
-Salva em processed/ (Parquet).
+     * O que faz: aplica regras de qualidade, rejeitando pedidos inválidos (pedido_id fora do intevalo válido de 9001 a 10000, quantidades negativas); 
+grava todos os registros inválidos com o motivo da rejeição em formato JSON em quarantine/;
+enriquece a base de pedidos válidos com JOIN dos dados de clientes e produtos;
+calcula valor_total = quantidade * preço;
+salva a tabela fato dos pedidos em processed/ (Parquet).
 
 <img width="495" height="122" alt="image" src="https://github.com/user-attachments/assets/aad85b5b-2b07-4853-9b8c-462c65b6d822" />
 <img width="403" height="197" alt="image" src="https://github.com/user-attachments/assets/98bb8497-306e-4cc9-9454-f998374ee7ab" />
@@ -53,8 +53,8 @@ Salva em processed/ (Parquet).
 <img width="401" height="205" alt="image" src="https://github.com/user-attachments/assets/ab3e94fb-dabb-48a3-a20e-727c23bf2603" />
 
 8. **Auditoria e Validação Athena**
-     * Executar script “setup_athena.py” --- python setup_athena.py [Nome do Bucket]
-     * O que faz: cria tabelas externas no Athena para Raw, Quarentena, Silver e Gold; repara partições; executa queries de validação (metadados e conciliação de integridade).
+     * Executar script **“setup_athena.py”** --- python setup_athena.py [Nome do Bucket]
+     * O que faz: cria tabelas externas no Amazon Athena para Raw, Quarentena, Silver e Gold; repara partições; executa duas queries de validação (metadados e conciliação de integridade).
   
 <img width="823" height="389" alt="image" src="https://github.com/user-attachments/assets/31d38391-1ca7-4ca6-887a-2f280bc8d17e" />
 <img width="823" height="392" alt="image" src="https://github.com/user-attachments/assets/5e6c594a-85c9-433d-80ce-46685e39d947" />
@@ -63,7 +63,7 @@ Primeira Query:
 
     SELECT "$path", "$file_size" FROM raw_pedidos LIMIT 10;
     
-Segunda Query:
+Segunda Query (comprova a equivalência: "Raw"="Silver"+"Quarentena"):
 
     WITH raw_count AS (
             SELECT COUNT(*) AS total_raw FROM raw_pedidos), 
