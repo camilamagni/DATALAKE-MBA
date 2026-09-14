@@ -60,13 +60,7 @@ def gerar_produtos(quantidade, arquivo="produtos.csv"):
         for i in range(quantidade):
             nome, categoria, preco_min, preco_max = random.choice(produtos)
             preco = round(random.uniform(preco_min, preco_max), 2)
-
-            # 85% dos IDs válidos, 15% inválidos
-            if random.random() < 0.85:
-                produto_id = 9001 + i
-            else:
-                produto_id = random.randint(10001, 11000)  # anomalia
-
+            produto_id = 9001 + i
             escritor.writerow([produto_id, nome, categoria, preco])
 
     print("======================================")
